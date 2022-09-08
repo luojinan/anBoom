@@ -92,6 +92,7 @@ TODO: 🤔 有趣的是还能获取路由的层级，但是通过正则不就全
 ---
 
 ## ts问题小记
+### import { type xxx } from 'xx'
 但是当我们同时开启preserveValueImports 和isolatedModules配置时，isolatedModules会让引入的类型必须是type-only。所以来自同一个文件的数据必须得分两条import引入
 [TypeScript7个实用小技巧](https://juejin.cn/post/7073777604540497956)
 
@@ -134,4 +135,41 @@ export default createRouter({
   history: createWebHashHistory(),
   routes,
 });
+```
+
+### export namespace
+
+```ts
+// * 登录模块
+export namespace Login {
+	export interface ReqLoginForm {
+		username: string;
+		password: string;
+	}
+	export interface ResLogin {
+		access_token: string;
+	}
+	export interface ResAuthButtons {
+		[key: string]: any;
+	}
+}
+```
+
+### setup await
+
+setup中怎么写await 后续的操作， 都放在文件末尾？并发呢
+[顶层 await](https://cn.vuejs.org/api/sfc-script-setup.html#top-level-await)
+
+包一层函数给一个变量 即使不会用到
+```ts
+const unuseFunction = async () => {
+  await useHooks()
+}
+```
+
+## 怎么定义 接收回调函数 的类型
+
+```ts
+export function foo(callback){
+}
 ```
