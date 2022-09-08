@@ -2,11 +2,10 @@
 </script>
 
 <template>
-  <el-button>I am ElButton</el-button>
   admin 前端应用
+  <router-view></router-view>
 </template>
 
 <style scoped>
 
-  
 </style>
