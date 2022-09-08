@@ -1,3 +1,4 @@
+## 创建项目
 ```bash
 npm init vue@next
 ```
@@ -22,7 +23,7 @@ npm init vue@next
 
 删除脚手架内容
 
-## 全局安装element plus 组件
+## 全局安装element plus 组件库
 [element-plus 官方文档](https://element-plus.gitee.io/zh-CN/guide/quickstart.html#%E6%89%8B%E5%8A%A8%E5%AF%BC%E5%85%A5)
 
 先全局安装，后面再改成按需引入
@@ -50,10 +51,9 @@ pnpm i -D element-plus
 ## eslint 不生效
 
 
-
 @别名 已经由create-vue配置好了
 
-## 配置路由
+## 初始化路由
 跟路径重定向
 login
 home页
@@ -64,7 +64,34 @@ home页
 为什么敲 createRouter 没有自动提示 和 自动import
 写对象属性时有提示，但是也要敲出首字母才行
 
-## ts
+可以配置
+- `strict` - 严格 - 末尾不能有/
+- `sensitive` - 敏感 - 路由大小写敏感
+默认都是false
+
+- `scrollBehavior` - 在路由导航时控制滚动的函数。可以返回一个 Promise 来延迟滚动
+👆 TODO: 🤔跟after的路由守卫有什么区别，这个函数也是钩到那里的吧
+
+## 404路由匹配
+
+`:pathMatch` 依然是路由参数变量名通过 `$route.params` 获取
+括号写的是正则 `(.*)`
+
+TODO: 🤔 有趣的是还能获取路由的层级，但是通过正则不就全部获取出来了吗？什么场景要用到👇
+`/:pathMatch(.*)*`
+`/:pathMatch(.*)+`
+
+[vue-router 可重复参数](https://router.vuejs.org/zh/guide/essentials/route-matching-syntax.html#可重复参数)
+
+> vue2 直接*匹配 `$route.params` 会自动添加一个名为 `pathMatch` 参数。它包含了 URL 通过通配符被匹配的部分
+
+
+## 登录页编写
+
+
+---
+
+## ts问题小记
 但是当我们同时开启preserveValueImports 和isolatedModules配置时，isolatedModules会让引入的类型必须是type-only。所以来自同一个文件的数据必须得分两条import引入
 [TypeScript7个实用小技巧](https://juejin.cn/post/7073777604540497956)
 
