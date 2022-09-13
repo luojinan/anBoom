@@ -24,6 +24,7 @@ importers:
 
   packages/admin:
     specifiers:
+      '@element-plus/icons-vue': ^2.0.9
       '@rushstack/eslint-patch': ^1.1.4
       '@vue/eslint-config-prettier': ^7.0.0
       '@vue/eslint-config-typescript': ^11.0.0
@@ -36,6 +37,7 @@ importers:
     dependencies:
       vue-router: 4.1.5
     devDependencies:
+      '@element-plus/icons-vue': 2.0.9
       '@rushstack/eslint-patch': 1.1.4
       '@vue/eslint-config-prettier': 7.0.0_prettier@2.7.1
       '@vue/eslint-config-typescript': 11.0.1

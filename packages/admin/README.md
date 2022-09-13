@@ -61,7 +61,7 @@ home页
 
 读取 `router/modules/` 模块下的所有ts文件
 
-为什么敲 createRouter 没有自动提示 和 自动import
+为什么敲 `createRouter` 没有自动提示 和 `自动import`
 写对象属性时有提示，但是也要敲出首字母才行
 
 可以配置
@@ -88,6 +88,181 @@ TODO: 🤔 有趣的是还能获取路由的层级，但是通过正则不就全
 
 ## 登录页编写
 
+### 引入element-plus icon
+> [element-plus官网文档 - Icon 图标](https://element-plus.gitee.io/zh-CN/component/icon.html)
+
+安装依赖，单独引用
+```bash
+pnpm i -D @element-plus/icons-vue
+```
+```ts
+import { Edit } from '@element-plus/icons-vue' 
+```
+
+TODO: 🤔这个子库原理是什么+svg
+
+![ts异常](https://kingan-md-img.oss-cn-guangzhou.aliyuncs.com/blog/20220909105030.png)
+
+重启vscode就好了
+
+### 路由跳转
+> [官方文档-Vue Router 和 组合式 API](https://router.vuejs.org/zh/guide/advanced/composition-api.html)
+> 每次都要引入并执行 useRouter()
+
+```ts
+import { useRouter } from "vue-router";
+const router = useRouter();
+router.push({ name: "home" });
+```
+
+TODO: 可以封装一个 `useGo/usePushWindow`
+
+### 表单逻辑
+#### 表单组件
+```html
+<el-form :model="loginForm" size="large">
+  <!-- 用户名 -->
+  <el-form-item prop="username">
+    <el-input v-model="loginForm.username" placeholder="用户名" />
+  </el-form-item>
+  <!-- 密码 -->
+  <el-form-item prop="password">
+    <el-input v-model="loginForm.password" placeholder="密码" show-password autocomplete="off" type="password" />
+  </el-form-item>
+</el-form>
+```
+因为是全局引入的 `element-plus` 组件，所以js部分不手动引入
+`input组件` 用了 `autocomplete` 属性，组件库文档说是原生属性
+猜测是不想让浏览器记录一堆账号密码 而用这个属性关闭自动填充
+谷歌浏览器的效果才是理想效果 edge反而真的随机生成密码了
+查看文档后改为用 `off`
+![](https://kingan-md-img.oss-cn-guangzhou.aliyuncs.com/blog/20220913100428.png)
+
+![](https://kingan-md-img.oss-cn-guangzhou.aliyuncs.com/blog/20220913100708.png)
+好像只有浏览器登录了账号才生效，如谷歌不登陆不会有该功能
+[MDN - The HTML 自动完成属性](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Attributes/autocomplete)
+[MDN - 如何关闭表单自动填充](https://developer.mozilla.org/zh-CN/docs/Web/Security/Securing_your_site/Turning_off_form_autocompletion#preventing_autofilling_with_autocompletenew-password)
+
+
+```vue
+<script setup lang="ts">
+// 登录表单数据
+const loginForm = reactive<ReqLoginForm>({
+  username: "",
+  password: "",
+});
+</script>
+```
+
+#### 校验逻辑
+校验逻辑
+- 失焦
+- 提交按钮
+
+给 `form组件` 添加 `ref` 和 `rules` 属性
+```html
+<el-form ref="loginFormRef" :rules="loginRules">
+  <!-- ... -->
+</el-form>
+```
+
+
+
+- vue3中的`dom实例$ref`，在`setup script`里，需要用`ref()`返回一个与dom上的ref**同名的变量**
+- vue3内部会知道当前这个空的响应式数据是dom实例
+- 而在ts中，需要定义好这个空的响应式数据泛型 如果是组件则引用组件抛出来的type
+- 由此可见，封装组件时抛出type时很有必要的，因为要让组件支持$ref的类型推导
+- TODO: 怎么定义一个组件实例的泛型
+- 怎么检查效果，就是鼠标移入可以看到dom实例上有的prop和函数
+```vue
+<script setup lang="ts">
+// 定义 formRef dom实例(注意同名变量)
+const loginFormRef = ref<FormInstance>();
+
+// 定义校验规则 rules 属性 支持blur失焦触发
+// TODO: async-validator 库并不支持trigger属性，研究一下element-plus是如何拓展的
+const loginRules = reactive({
+  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }]
+});
+
+// 校验逻辑
+const checkFormData = async () => {
+  // 取ref都考虑取不到的场景，如dom实例未渲染时
+  const formDom = loginFormRef.value;
+  if (!formDom) return;
+
+  // 调用dom实例中的校验函数
+  const res = await formDom.validate();
+  return res
+}
+</script>
+```
+
+
+#### 提交逻辑
+```html
+<!-- 按钮-重置 登录 -->
+<div>
+  <el-button :icon="CircleClose" round @click="resetForm" size="large">重置</el-button>
+  <el-button :icon="UserFilled" round @click="login" size="large" type="primary" :loading="loadingState">
+    登录
+  </el-button>
+</div>
+```
+
+```vue
+<script setup lang="ts">
+import { CircleClose, UserFilled } from "@element-plus/icons-vue";
+// 引入消息弹框组件，全局注册组件只是可以省略html上写的组件引用，js中的还是要引入
+import { ElMessage } from "element-plus";
+// 修改loading状态值
+const loadingState = ref<boolean>(false);
+// loadingState.value = true;
+// loadingState.value = false;
+
+// login
+const login = async () => {
+  // 校验表单
+  const res = await checkFormData();
+  if (!res) return;
+
+  loadingState.value = true;
+  try {
+    console.log("登录数据", loginForm);
+    // 调用登陆接口
+    ElMessage.success("登录成功！");
+    router.push({ name: "home" });
+  } finally {
+    loadingState.value = false;
+  }
+};
+
+// resetForm
+const resetForm = () => {
+  // 和校验逻辑一样 取ref都考虑取不到的场景，如dom实例未渲染时
+  const formEl = loginFormRef.value
+  if (!formEl) return;
+  // 调用dom实例中的重置函数
+  formEl.resetFields();
+};
+</script>
+```
+
+
+### 编写样式
+
+用一个带动态效果的svg作为背景图
+
+```css
+background-color: #fffc; /* 10%透明度？？ */
+
+background-color: #fff;
+opacity: 0.9;
+```
+
+
+## 引入taillwind or unocss
 
 ---
 
@@ -137,7 +312,7 @@ export default createRouter({
 });
 ```
 
-### export namespace
+### export namespace 作用
 
 ```ts
 // * 登录模块
@@ -173,3 +348,6 @@ const unuseFunction = async () => {
 export function foo(callback){
 }
 ```
+
+## 参考内管项目
+- [unocss + pinal + !ts](https://github.com/zclzone/vue-naive-admin)

@@ -1,5 +1,14 @@
 @import "./base.css";
 
 #app {
-  font-weight: normal;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.flx-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
