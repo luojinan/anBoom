@@ -1,6 +1,6 @@
 <template>
   <div class="login-container flx-center">
-    <!-- <SwitchDark class="dark" /> -->
+    <SwitchDark class="switchdark" />
     <div class="login-box">
       <div class="login-left">
         <img src="@/assets/images/login_left0.png" alt="login" />
@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts" name="login">
-// import SwitchDark from "@/components/SwitchDark/index.vue";
+import SwitchDark from "@/components/bussiness/SwitchDark/index.vue";
 import LoginForm from "./components/LoginForm.vue";
 </script>
 
@@ -31,6 +31,13 @@ import LoginForm from "./components/LoginForm.vue";
   background-position: 50%;
   background-size: 100% 100%;
   background-size: cover;
+}
+
+.login-container .switchdark {
+  position: absolute;
+  top: 4.5%;
+  right: 3.2%;
+  z-index: 1;
 }
 
 .login-box {
