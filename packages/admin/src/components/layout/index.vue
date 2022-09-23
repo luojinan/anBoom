@@ -1,14 +1,13 @@
 <script lang="ts" setup>
-import Tab from './components/Tabs/index.vue'
-import Menu from './components/Menu/index.vue'
-import Header from './components/Header/index.vue'
-
+import Tab from "./components/Tabs/index.vue";
+import Menu from "./components/Menu/index.vue";
+import Header from "./components/Header/index.vue";
 </script>
 
 <template>
   <el-container>
     <!-- 侧边栏 1.菜单 -->
-    <el-aside width="200px">
+    <el-aside class="layout-aside" width="200px">
       <Menu></Menu>
     </el-aside>
 
@@ -26,3 +25,9 @@ import Header from './components/Header/index.vue'
     </el-container>
   </el-container>
 </template>
+
+<style>
+.layout-aside {
+  height: 100vh;
+}
+</style>

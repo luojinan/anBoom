@@ -393,6 +393,10 @@ router.push({ name: "home" });
 </template>
 ```
 
+继续创建 `menu组件` `header组件` `tabs组件`
+![](https://kingan-md-img.oss-cn-guangzhou.aliyuncs.com/blog/20220923154538.png)
+都直接使用 element-plus组件，数据及相应操作 后续补充
+
 ---
 
 ## ts问题小记
