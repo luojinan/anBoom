@@ -370,6 +370,29 @@ router.push({ name: "home" });
 ![](https://kingan-md-img.oss-cn-guangzhou.aliyuncs.com/blog/20220923113906.png)
 
 
+## 编写布局组件
+
+![](https://kingan-md-img.oss-cn-guangzhou.aliyuncs.com/blog/20220923115820.png)
+
+```html
+<template>
+  <el-container>
+    <!-- 侧边栏 1.菜单 -->
+    <el-aside width="200px">Aside</el-aside>
+
+    <!-- 主区域 -->
+    <el-container>
+      <!-- 顶部区域 1.系统展示条 2.tab -->
+      <el-header>Header</el-header>
+      <!-- 主区域 -->
+      <el-main>
+        <router-view></router-view>
+      </el-main>
+    </el-container>
+  </el-container>
+</template>
+```
+
 ---
 
 ## ts问题小记
