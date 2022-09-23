@@ -1,8 +1,5 @@
-import {
-  createRouter,
-  createWebHashHistory,
-  type RouteRecordRaw,
-} from "vue-router";
+import { createRouter, createWebHashHistory, type RouteRecordRaw } from "vue-router";
+import Layout from "@/components/layout/index.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -13,6 +10,18 @@ const routes: RouteRecordRaw[] = [
     path: "/login",
     name: "login",
     component: () => import("@/modules/base/login/index.vue"),
+  },
+  {
+    path: "/home",
+    component: Layout,
+    redirect: "/home/index",
+    children: [
+      {
+        path: "/home/index",
+        name: "home",
+        component: () => import("@/modules/base/home/index.vue"),
+      },
+    ],
   },
   {
     path: "/:pathMatch(.*)", // 跟vue2直接*有什么区别

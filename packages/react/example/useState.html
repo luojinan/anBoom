@@ -1,0 +1,28 @@
+<script>
+(()=>{
+  let proxyVal
+  function useState(val) {
+    proxyVal = val
+
+    function setState(newVal) {
+      proxyVal = newVal
+      // render()
+      console.log('触发render')
+    }
+    
+    return [proxyVal, setState]
+  }
+
+
+  /*********** 调试示例代码 ************/
+  let [testNum, setTestNum] = useState(0)
+  console.log('初始化testNum', testNum)
+
+  setInterval(() => {
+    setTestNum(testNum+1) // 每3秒更新数据，并且会更新视图
+    console.log('修改后的testNum', testNum) // 外部没有直接修改testNum 而是调用setTestNum之后修改
+  }, 3000);
+
+})()
+</script>
+

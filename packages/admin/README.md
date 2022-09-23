@@ -59,6 +59,38 @@ login
 home页
 404
 
+```ts
+import {
+  createRouter,
+  createWebHashHistory,
+  type RouteRecordRaw, // 用作 createRouter 的参数类型指定
+} from "vue-router";
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: "/",
+    redirect: "login",
+  },
+  {
+    path: "/login",
+    name: "login",
+    component: () => import("@/modules/base/login/index.vue"),
+  },
+  {
+    path: "/:pathMatch(.*)", // 跟vue2直接*有什么区别
+    // pathMatch依然是路由参数变量名通过 $route.params 获取 括号中写正则
+    name: "404",
+    component: () => import("@/modules/base/404/index.vue"),
+  },
+];
+
+export default createRouter({
+  history: createWebHashHistory(),
+  routes,
+});
+
+```
+
 读取 `router/modules/` 模块下的所有ts文件
 
 为什么敲 `createRouter` 没有自动提示 和 `自动import`
@@ -264,6 +296,80 @@ opacity: 0.9;
 
 ## 引入taillwind or unocss
 
+
+## 编写首页路由
+
+- 除全屏页面(404、login)
+- 其他页面都是一个父子路由形式页面(切换菜单才能不刷新父路由组件)
+- 因此需要内管公共的布局组件-即父组件
+
+创建布局组件 `src/components/layout`
+```vue
+<template>
+  <h1>layout-布局</h1>
+  <router-view></router-view>
+</template>
+```
+
+创建首页页面 `src/modules/base/home`
+```vue
+<template>
+  <h4>home首页 </h4>
+</template>
+```
+
+新增路由配置，父子路由形式页面(切换菜单才能不刷新父路由组件)
+```ts
+import { createRouter, createWebHashHistory, type RouteRecordRaw } from "vue-router";
+import Layout from "@/components/layout/index.vue";
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: "/",
+    redirect: "login",
+  },
+  {
+    path: "/login",
+    name: "login",
+    component: () => import("@/modules/base/login/index.vue"),
+  },
+  {
+    path: "/home",
+    component: Layout,
+    redirect: "/home/index",
+    children: [
+      {
+        path: "/home/index",
+        name: "home",
+        component: () => import("@/modules/base/home/index.vue"),
+      },
+    ],
+  },
+  {
+    path: "/:pathMatch(.*)", // 跟vue2直接*有什么区别
+    // pathMatch依然是路由参数变量名通过 $route.params 获取 括号中写正则
+    name: "404",
+    component: () => import("@/modules/base/404/index.vue"),
+  },
+];
+
+export default createRouter({
+  history: createWebHashHistory(),
+  routes,
+});
+```
+
+因为登录页已经写好了路由跳转
+```ts
+import { useRouter } from "vue-router";
+const router = useRouter();
+router.push({ name: "home" });
+```
+
+因此可以直接运行测试跳转 👇
+![](https://kingan-md-img.oss-cn-guangzhou.aliyuncs.com/blog/20220923113906.png)
+
+
 ---
 
 ## ts问题小记
@@ -347,6 +453,16 @@ const unuseFunction = async () => {
 ```ts
 export function foo(callback){
 }
+```
+
+## 接口请求
+
+```ts
+export const getGiftlist = ( 
+  params: Record<string, any>
+): Promise<IRes<IGiftInfo>> => {  
+  return Http.get("/apis/gift/list", params);
+};
 ```
 
 ## 参考内管项目
