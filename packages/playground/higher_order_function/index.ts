@@ -1,3 +1,5 @@
+// ts实现 every map some 的测试代码
+/**
 import { every, map, some } from "./map_some_every"
 
 const list = [1,2,3,4]
@@ -19,3 +21,17 @@ const everyRes = every(list, (item)=>{
   return item < 4
 })
 console.log('everyRes',everyRes)
+*/
+
+// 闭包的测试代码
+import { once } from "./cloSure/once"
+
+function pay() {
+  console.log('支付')
+}
+
+const payOnce = once(pay)
+
+payOnce()
+payOnce()
+
