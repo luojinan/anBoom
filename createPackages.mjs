@@ -14,7 +14,7 @@ const pkg = 'packages'
  * 2. 创建的子包 带上 README.md 文件 以及 src目录 和主文件 main.ts
  */
 ;(async () => {
-  await promises.mkdir(pkg)
+  // await promises.mkdir(pkg)
   dirs.forEach(async (i) => {
     const absPath = path.resolve(pkg, i)
     await promises.mkdir(absPath)

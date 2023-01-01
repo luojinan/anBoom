@@ -1,0 +1,20 @@
+{
+  "name": "@anBoom/anvite",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx esno ./src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.7.16",
+    "connect": "^3.7.0",
+    "esno": "^0.16.3",
+    "sirv": "^2.0.2",
+    "tslib": "^2.4.1"
+  }
+}
