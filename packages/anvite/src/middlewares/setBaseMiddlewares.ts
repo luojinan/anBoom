@@ -1,6 +1,7 @@
 // use的中间件格式是一个未执行的函数(req,res,next)=>next()
 // 这里的中间件都是调用一个函数生成一个函数
 
+import { htmlFallbackMiddleware } from "./htmlFallback"
 import { servePublicMiddleware } from "./static"
 import { transformMiddleware } from "./transform"
 
@@ -12,6 +13,7 @@ export function setBaseMiddlewares(config, server, connectRes) {
   if (config.publicDir) {
     connectRes.use(servePublicMiddleware(config.publicDir))
   }
+  connectRes.use(htmlFallbackMiddleware()) // TODO: 按vite源码放transformMiddleware路由中间件下，执行顺序会先读取文件内容而报错
   // main transform middleware
   connectRes.use(transformMiddleware(server))
 
@@ -20,7 +22,7 @@ export function setBaseMiddlewares(config, server, connectRes) {
   // connectRes.use(serveStaticMiddleware(root, server))
 
   // // html fallback
-  // connectRes.use(htmlFallbackMiddleware(root, config.appType === 'spa'))
+  // connectRes.use(htmlFallbackMiddleware())
 
   // // transform index.html
   // connectRes.use(indexHtmlMiddleware(server))

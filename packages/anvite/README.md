@@ -257,6 +257,156 @@ export function send(req,res,content) {
 
 往这个创建启动静态服务器的过程里加入各种插件挂载和调用的机制
 
+在server中创建一个IoC控制中心，并传入路由中间件，让路由命中相关IoC模块插件
+
+```ts
+
+/**
+ * 创建http服务，并返回包含实例信息的对象
+ */
+export const createServer = async ({}) =>{
+  // 根据传递的跟devserver相关的参数处理一下，创建出http服务
+  const connectRes = connect()
+  const httpServer = await resolveHttpServer(connectRes)
+
+  // 创建插件调度中心
+  const pluginContainer = createPluginContainer(defaultConfig) // <-- this
+
+  const server = {
+    httpServer,
+    pluginContainer,
+    listen: httpServer.listen.bind(httpServer) // this上下文
+  }
+  // useMiddleware
+  setBaseMiddlewares(defaultConfig,server,connectRes)
+  return server
+}
+```
+
+👇 `src/server/pluginContainer.ts`
+```ts
+/**
+ * 创建IoC依赖模块控制中心，处理vite插件
+ * 就是主体实例，整个devserver的各种功能都由这个模块控制中心挂载以及提供调用
+ */
+export function createPluginContainer(config) {
+  const { plugins } = config
+  const container = {
+    load() {
+      console.log('插件机制处理load')
+    }
+  }
+  return container
+}
+```
+
+👇 `src/transformRequest.ts`
+```js
+/**
+ * 通过fileurl 返回转译后的文件内容
+ * @param url 
+ */
+export function transformRequest(url:string, server) {
+  const { pluginContainer } = server
+  console.log(pluginContainer.load()) // <-- this
+
+  return `${url}转译后的文件内容`
+}
+```
+
+👆 至此调用插件load逻辑实现，再实现挂载逻辑
+
+这里先不处理的vite插件机制中的pre、post等配置
+
+看起来不是在load的插件里做加载资源的
+而是在load之后 transform之前 -- 这是rollup的插件生命周期机制，还是要先熟悉rollup
+
+👇 `src/server/transformRequest.ts`
+```ts
+import fs from 'node:fs'
+/**
+ * 通过fileurl 返回转译后的文件内容
+ * @param url 
+ */
+export function transformRequest(url:string, server) {
+  let code = ''
+  const rootUrl = process.cwd()
+  // const fileUrl = path.resolve(url,rootUrl) // 只输出文件目录
+  const fileUrl = `${rootUrl}${url}`
+
+  // 按插件执行顺序是先执行插件中的load，没有时才执行读取文件
+  const { pluginContainer } = server
+  const loadResult = pluginContainer.load()
+
+  if(loadResult === null) {
+    code = fs.readFileSync(fileUrl, 'utf-8') // <-- this
+  }
+  return code
+}
+```
+
+在根路径下创建 `a.html`模板文件
+不用index.html原因是，nodejs静态服务器好像默认监听了重定向到根路径index.html
+当访问 `http://localhost:3001` 会自动读取跟路径下的index.html
+
+此时访问`http://localhost:3001/a.html` 浏览器成功打开a.html的文件内容
+
+在a.html中用esm加载main.js
+
+![](https://kingan-md-img.oss-cn-guangzhou.aliyuncs.com/blog/20230101161040.png)
+
+## 根路径重定向connect中间件
+
+中间件不是vite的container插件，不要搞混了
+
+中间件的洋葱圈执行顺序是next前的按挂载顺序执行，next后的倒序
+
+那重定向中间件应该要在路由中间件前才对，否则先进入路由中间件就去读取`/`而报错了
+
+但是vite的重定向中间件在后面？？怎么做到的TODO:
+我们先放前面
+
+```ts
+import { transformMiddleware } from "./transform"
+
+export function setBaseMiddlewares(config, server, connectRes) {
+  if (config.publicDir) {
+    connectRes.use(servePublicMiddleware(config.publicDir))
+  }
+
+  // html fallback
+  connectRes.use(htmlFallbackMiddleware()) // <-- this
+  
+  // main transform middleware
+  connectRes.use(transformMiddleware(server))
+}
+```
+
+`connect-history-api-fallback` 这nodejs库可以研究一下
+好像都是些判断http请求html资源的header信息判断
+有更完善的健壮度
+
+```ts
+import history from 'connect-history-api-fallback'
+
+export function htmlFallbackMiddleware() {
+  const middlewareFn = history({
+    index: '/a.html'
+  })
+
+  return middlewareFn
+}
+```
+
+## 支持ts
+
+### 插件transform钩子执行
+
+### 使用ESbuild
+
+## 支持json
+
+## 支持css
 
 
 ## 总体步骤

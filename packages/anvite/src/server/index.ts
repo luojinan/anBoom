@@ -3,6 +3,7 @@ import connect from "connect" // 缺少ts类型声明 需要手动编写
 import path from "path"
 import { resolveHttpServer, setClientErrorHandler } from "../http"
 import { setBaseMiddlewares } from "../middlewares/setBaseMiddlewares"
+import { createPluginContainer } from "./pluginContainer"
 
 
 const defaultConfig = {
@@ -24,15 +25,17 @@ export const createServer = async ({}) =>{
   // 创建依赖图谱(扫描未执行的所有文件？还是运行时创建？
 
   // 创建插件调度中心
+  const pluginContainer = createPluginContainer(defaultConfig)
 
   // 往node创建的httpServer实例上挂载 插件机制、hmr机制、依赖图谱等功能 形成一个viteServer 🤔koa/express其实也是这样？
   const server = {
     httpServer,
+    pluginContainer,
     listen: httpServer.listen.bind(httpServer)
   }
 
   // useMiddleware
-  setBaseMiddlewares(defaultConfig,server,connectRes)
+  setBaseMiddlewares(defaultConfig, server, connectRes)
 
   return server
 }
