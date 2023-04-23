@@ -1,0 +1,15 @@
+{
+    "name": "@anBoom/mini-request",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "tsno run test/index.ts"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "tsno": "^2.0.0"
+    }
+}

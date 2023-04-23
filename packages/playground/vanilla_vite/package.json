@@ -4,11 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "js-cookie": "2",
     "lodash-es": "^4.17.21"
   }
 }
